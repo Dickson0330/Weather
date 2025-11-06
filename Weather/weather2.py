@@ -39,6 +39,7 @@ class WeatherApp(App):
             {"temp": (21, 25), "weather_keywords": [], "advice": "過ごしやすい気温です。長袖や七分袖に軽い上着が良いでしょう。", "image": "images/long_sleeve_tshirt.png"}, 
             {"temp": (26, 40), "weather_keywords": ["雨", "雷"], "advice": "暑くて雨です。半袖、短パンで涼しくし、傘を持ちましょう。", "image": "images/tshirt_rain.png"}, 
             {"temp": (26, 40), "weather_keywords": [], "advice": "暑い日です。半袖やスカートなど涼しい服装をおすすめします。", "image": "images/tshirt.png"},
+            
         ]
 
         main_layout = BoxLayout(orientation='vertical', padding=20, spacing=15)

@@ -18,18 +18,14 @@ DEFAULT_CITY = "Kobe"
 WEATHER_ICON_URL = "https://openweathermap.org/img/wn/{icon_code}@2x.png" 
 DEFAULT_ICON_PATH = "images/default.png" 
 
-# -------------------------------------------------------------------
 app_dir = os.path.dirname(os.path.abspath(__file__))
 
 def get_abs_path(relative_path):
     parts = relative_path.split('/') 
     return os.path.join(app_dir, *parts)
-# -------------------------------------------------------------------
-
 
 class WeatherApp(App):
     def build(self):
-        # 設置 Kivy 視窗的底色，以防萬一
         Window.clearcolor = (135/255, 206/255, 235/255, 1) 
         
         self.city_name = "位置を読み込み中"
@@ -53,7 +49,6 @@ class WeatherApp(App):
             print(f"警告: 晴天背景圖片 '{self.sunny_bg_image}' 未找到。")
             self.sunny_bg_image = "" 
 
-        # 確保服裝建議圖也使用絕對路徑 (略)
         self.rules = [
             {"temp": (-20, 10), "weather_keywords": ["雨", "雪", "霧"], "advice": "寒くて雨や雪です。ダウンコートや厚手の上着、防水靴をおすすめします。", "image": get_abs_path("images/coat_rain.png")},
             {"temp": (-20, 10), "weather_keywords": [], "advice": "寒く乾燥しています。厚手のコートやダウンをおすすめします。", "image": get_abs_path("images/coat.png")}, 
@@ -65,11 +60,9 @@ class WeatherApp(App):
             {"temp": (26, 40), "weather_keywords": [], "advice": "暑い日です。半袖やスカートなど涼しい服装をおすすめします。", "image": get_abs_path("images/tshirt.png")},
         ]
         
-        # -------------------------------------------------------------
-        # 💥 1. 根佈局改為 FloatLayout
+
         root_layout = FloatLayout()
         
-        # 💥 2. 背景圖片作為 Image 元件，設定為鋪滿 (size_hint=(1, 1))
         self.bg_image_widget = Image(
             source=self.current_bg_image, 
             allow_stretch=True, 
@@ -79,21 +72,14 @@ class WeatherApp(App):
         )
         root_layout.add_widget(self.bg_image_widget)
         
-        # 💥 3. 原始的 main_layout 放在 FloatLayout 上方，且 size_hint=(1, 1)
-        # 移除 canvas.before 繪圖，因為背景現在是 Image 元件
         main_layout = BoxLayout(
             orientation='vertical', 
-            padding=10, # 重新引入 padding 讓內容不貼邊
+            padding=10, 
             spacing=10,
-            size_hint=(1, 1), # 確保內容佈局鋪滿視窗
+            size_hint=(1, 1), 
             pos_hint={'x': 0, 'y': 0}
         )
-        # ⚠️ 移除：main_layout.bind(size=self._update_bg_rect, pos=self._update_bg_rect)
-        # ⚠️ 移除：with main_layout.canvas.before: ...
         
-        # -------------------------------------------------------------
-        
-        # 內層佈局恢復到美觀狀態
         top_layout = BoxLayout(orientation='horizontal', size_hint_y=0.25, spacing=10, padding=[0, 0, 0, 0]) 
         city_icon_layout = BoxLayout(orientation='horizontal', size_hint_x=0.6, spacing=5)
         
@@ -204,28 +190,19 @@ class WeatherApp(App):
         main_layout.add_widget(self.center_layout) 
         main_layout.add_widget(bottom_layout)
         
-        # 💥 4. 將內容佈局添加到根佈局
         root_layout.add_widget(main_layout)
         
         threading.Thread(target=lambda: self._manual_weather_thread(DEFAULT_CITY)).start()
-        return root_layout # 💥 返回新的根佈局
+        return root_layout 
 
-    # ⚠️ 移除 _update_bg_rect 方法，因為背景現在是 Image 元件
-    # def _update_bg_rect(self, instance, value):
-    #     pass 
-
-    # 💥 修改背景圖片更新邏輯
     def _update_background_texture(self):
         if os.path.exists(self.current_bg_image):
             self.bg_image_widget.source = self.current_bg_image
-            self.bg_image_widget.reload() # 確保圖片重新載入
+            self.bg_image_widget.reload() 
         else:
             print(f"無法載入背景圖片: {self.current_bg_image}")
-            self.bg_image_widget.source = self.sunny_bg_image # 如果失敗，切換到晴天背景
+            self.bg_image_widget.source = self.sunny_bg_image 
             self.bg_image_widget.reload()
-
-
-    # ... (其餘方法保持不變，略)
     
     def manual_search_weather_spinner(self, instance, city_name):
         city_to_search = city_name.strip()

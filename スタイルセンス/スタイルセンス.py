@@ -2,7 +2,7 @@ import requests
 from kivy.network.urlrequest import UrlRequest 
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.floatlayout import FloatLayout # 導入 FloatLayout
+from kivy.uix.floatlayout import FloatLayout 
 from kivy.uix.label import Label
 from kivy.uix.button import Button 
 from kivy.uix.image import Image
@@ -38,7 +38,7 @@ class WeatherApp(App):
         self.sunrise = 0
         self.sunset = 0
 
-        self.rainy_bg_image = get_abs_path("images/rainy_background.png")  
+        self.rainy_bg_image = get_abs_path("images/rainy_background.jpeg")  
         self.sunny_bg_image = get_abs_path("images/sunny_background.png")  
         self.current_bg_image = self.sunny_bg_image 
 
@@ -60,7 +60,6 @@ class WeatherApp(App):
             {"temp": (26, 40), "weather_keywords": [], "advice": "暑い日です。半袖やスカートなど涼しい服装をおすすめします。", "image": get_abs_path("images/tshirt.png")},
         ]
         
-
         root_layout = FloatLayout()
         
         self.bg_image_widget = Image(
@@ -80,7 +79,7 @@ class WeatherApp(App):
             pos_hint={'x': 0, 'y': 0}
         )
         
-        top_layout = BoxLayout(orientation='horizontal', size_hint_y=0.25, spacing=10, padding=[0, 0, 0, 0]) 
+        top_layout = BoxLayout(orientation='horizontal', size_hint_y=0.25, spacing=10) 
         city_icon_layout = BoxLayout(orientation='horizontal', size_hint_x=0.6, spacing=5)
         
         self.city_selector_layout = BoxLayout(orientation='horizontal', size_hint_x=0.6) 
@@ -121,7 +120,6 @@ class WeatherApp(App):
             font_name="C:/Windows/Fonts/msgothic.ttc",
             font_size='20sp',
             color=(0, 0, 0, 1),
-            size_hint_y=0.4,
             halign='center',
             valign='center'
         )
@@ -131,7 +129,6 @@ class WeatherApp(App):
             font_name="C:/Windows/Fonts/msgothic.ttc",
             font_size='18sp',
             color=(0, 0, 0, 1),
-            size_hint_y=0.6,
             halign='center',
             valign='center'
         )
@@ -141,16 +138,14 @@ class WeatherApp(App):
         top_layout.add_widget(city_icon_layout)
         top_layout.add_widget(date_weather_layout)
         
-        self.center_layout = BoxLayout(orientation='horizontal', size_hint_y=0.5, spacing=10, padding=[0, 0, 0, 0]) 
-        
-        left_center_layout = BoxLayout(orientation='vertical', size_hint_x=0.4, padding=[0, 10, 0, 0], spacing=10) 
+        self.center_layout = BoxLayout(orientation='horizontal', size_hint_y=0.5, spacing=10) 
+        left_center_layout = BoxLayout(orientation='vertical', size_hint_x=0.4, spacing=10) 
         
         self.extra_info_label = Label(
             text='湿度: N/A\n風速: N/A\n日の出: N/A\n日の入り: N/A',
             font_name="C:/Windows/Fonts/msgothic.ttc",
             font_size='18sp',
             color=(0, 0, 0, 1),
-            size_hint_y=0.7, 
             halign='center',
             valign='center'
         )
@@ -160,7 +155,6 @@ class WeatherApp(App):
             font_name="C:/Windows/Fonts/msgothic.ttc",
             font_size='18sp',
             color=(0.3, 0.3, 0.3, 1), 
-            size_hint_y=0.3,
             halign='center',
             valign='top'
         )
@@ -171,15 +165,12 @@ class WeatherApp(App):
         self.center_layout.add_widget(left_center_layout)
         self.center_layout.add_widget(self.image)
         
-        bottom_layout = BoxLayout(orientation='vertical', size_hint_y=0.25, padding=[0, 0, 0, 0]) 
-        
+        bottom_layout = BoxLayout(orientation='vertical', size_hint_y=0.25) 
         self.label = Label(
             text='神戸の天気を読み込み中...',
             font_name="C:/Windows/Fonts/msgothic.ttc",
             font_size='22sp',
             color=(0, 0, 0, 1),
-            size_hint_y=1.0, 
-            text_size=(Window.width - 20, None),
             halign='center',
             valign='center'
         )
@@ -200,7 +191,6 @@ class WeatherApp(App):
             self.bg_image_widget.source = self.current_bg_image
             self.bg_image_widget.reload() 
         else:
-            print(f"無法載入背景圖片: {self.current_bg_image}")
             self.bg_image_widget.source = self.sunny_bg_image 
             self.bg_image_widget.reload()
     
@@ -210,8 +200,6 @@ class WeatherApp(App):
         if city_to_search in all_cities: 
             Clock.schedule_once(lambda dt: self._update_ui_loading(f"{city_to_search}の天気を取得中..."), 0)
             threading.Thread(target=lambda: self._manual_weather_thread(city_to_search)).start()
-        elif city_to_search == '▼':
-            pass
 
     def _manual_weather_thread(self, city):
         success = self.get_weather_data(city=city)
@@ -224,26 +212,17 @@ class WeatherApp(App):
         self.temp_weather_label.text = '天気 | 気温\n読み込み中...'
         self.extra_info_label.text = '湿度: N/A\n風速: N/A\n日の出: N/A\n日の入り: N/A'
         self.rain_alert_label.text = '読み込み中...'
-        self.rain_alert_label.color = (0.3, 0.3, 0.3, 1)
         self.weather_icon.source = get_abs_path(DEFAULT_ICON_PATH) 
         
-        if self.current_bg_image != self.sunny_bg_image:
-            self.current_bg_image = self.sunny_bg_image
-            Clock.schedule_once(lambda dt: self._update_background_texture(), 0)
-
-    def _update_error_ui(self):
-        self.temp_weather_label.text = "天気 | 気温\n読み込み失敗"
-        self.label.text = f"{self.city_name}の天気を取得できませんでした。ネットワークまたはAPI設定を確認してください。"
-        self.image.source = get_abs_path("images/default.png")
-        self.weather_icon.source = get_abs_path(DEFAULT_ICON_PATH) 
-        self.extra_info_label.text = '湿度: N/A\n風速: N/A\n日の出: N/A\n日の入り: N/A'
-        self.rain_alert_label.text = '読み込みエラー' 
-        self.rain_alert_label.color = (1, 0, 0, 1)
-        
-        if self.current_bg_image != self.sunny_bg_image:
-            self.current_bg_image = self.sunny_bg_image
-            Clock.schedule_once(lambda dt: self._update_background_texture(), 0)
-
+        self._set_text_color((0, 0, 0, 1))  # 黒色に戻す
+    
+    def _set_text_color(self, color_tuple):
+        """全ラベルの文字色を一括変更"""
+        for lbl in [
+            self.label, self.city_label, self.temp_weather_label,
+            self.extra_info_label, self.date_label, self.rain_alert_label
+        ]:
+            lbl.color = color_tuple
 
     def get_weather_data(self, city=None, lat=None, lon=None):
         if city is None:
@@ -270,26 +249,18 @@ class WeatherApp(App):
             return True
         except requests.exceptions.RequestException as e:
             print(f"天気データを取得できませんでした: {e}")
-            Clock.schedule_once(lambda dt: self._update_error_ui(), 0)
             return False
 
     def download_icon(self, icon_code):
         icon_url = WEATHER_ICON_URL.format(icon_code=icon_code)
         self.icon_temp_path = f'weather_icon_{icon_code}.png'
-        req = UrlRequest(icon_url, on_success=self.icon_download_success, on_failure=self.icon_download_fail, file_path=self.icon_temp_path, verify=False)
+        UrlRequest(icon_url, on_success=self.icon_download_success, on_failure=self.icon_download_fail, file_path=self.icon_temp_path, verify=False)
 
     def icon_download_success(self, req, results):
-        def update_source(dt):
-            self.weather_icon.source = self.icon_temp_path
-            self.weather_icon.reload()
-        Clock.schedule_once(update_source, 0)
+        Clock.schedule_once(lambda dt: (setattr(self.weather_icon, "source", self.icon_temp_path), self.weather_icon.reload()), 0)
 
     def icon_download_fail(self, req, results):
-        print(f"アイコンのダウンロードに失敗: {req.url}")
-        def update_source_fail(dt):
-            self.weather_icon.source = get_abs_path(DEFAULT_ICON_PATH)
-            self.weather_icon.reload()
-        Clock.schedule_once(update_source_fail, 0)
+        Clock.schedule_once(lambda dt: (setattr(self.weather_icon, "source", get_abs_path(DEFAULT_ICON_PATH)), self.weather_icon.reload()), 0)
 
     def _update_weather_ui(self):
         now = datetime.now().strftime("%Y/%m/%d")
@@ -300,20 +271,12 @@ class WeatherApp(App):
         temp_weather_text = f"天気 | 気温\n{self.weather} | {self.temp}°C\n({self.temp_min}°C~{self.temp_max}°C)"
         self.temp_weather_label.text = temp_weather_text
         self.label.text = f"{self.city_name}の天気情報を更新しました。"
-        try:
-            sunrise_time = datetime.fromtimestamp(self.sunrise).strftime("%H:%M")
-        except ValueError:
-            sunrise_time = "N/A"
-        try:
-            sunset_time = datetime.fromtimestamp(self.sunset).strftime("%H:%M")
-        except ValueError:
-            sunset_time = "N/A"
-        extra_info_text = f"湿度: {self.humidity}%\n風速: {self.wind_speed} m/s\n日の出: {sunrise_time}\n日の入り: {sunset_time}"
-        self.extra_info_label.text = extra_info_text
+        sunrise_time = datetime.fromtimestamp(self.sunrise).strftime("%H:%M")
+        sunset_time = datetime.fromtimestamp(self.sunset).strftime("%H:%M")
+        self.extra_info_label.text = f"湿度: {self.humidity}%\n風速: {self.wind_speed} m/s\n日の出: {sunrise_time}\n日の入り: {sunset_time}"
         
         rain_keywords = ["雨", "雷", "にわか雨", "小雨", "大雨", "霧雨", "雪"] 
-        is_rain_expected = any(keyword in self.weather for keyword in rain_keywords) 
-        if is_rain_expected:
+        if any(keyword in self.weather for keyword in rain_keywords):
             self.rain_alert_label.text = "☂傘を持って行きましょう！"
             self.rain_alert_label.color = (0, 0.4, 0.8, 1)
         else:
@@ -324,42 +287,36 @@ class WeatherApp(App):
         if self.temp is None or self.weather is None:
             self.label.text = "天気情報が不足しているため、アドバイスを表示できません。"
             self.image.source = get_abs_path("images/default.png")
-            
-            if self.current_bg_image != self.sunny_bg_image:
-                self.current_bg_image = self.sunny_bg_image
-                Clock.schedule_once(lambda dt: self._update_background_texture(), 0)
+            self._set_text_color((0, 0, 0, 1))
             return
         
         rain_keywords = ["雨", "雷", "にわか雨", "小雨", "大雨", "霧雨", "雪"] 
-        
         is_rain_expected = any(keyword in self.weather for keyword in rain_keywords)
 
-        new_bg_image = self.sunny_bg_image 
-
-        if is_rain_expected:
-            new_bg_image = self.rainy_bg_image
-        else:
-            new_bg_image = self.sunny_bg_image
-
+        new_bg_image = self.rainy_bg_image if is_rain_expected else self.sunny_bg_image
         if new_bg_image != self.current_bg_image:
             self.current_bg_image = new_bg_image
             Clock.schedule_once(lambda dt: self._update_background_texture(), 0)
 
         suggestion = f"{self.temp}°C・{self.weather}に基づく服装の提案はありません。"
         image_file = get_abs_path("images/default.png") 
-        current_temp = self.temp
-        current_weather = self.weather
         for rule in self.rules:
             temp_min_rule, temp_max_rule = rule["temp"]
-            is_temp_match = temp_min_rule <= current_temp <= temp_max_rule
-            if is_temp_match:
-                weather_keywords = rule.get("weather_keywords", [])
-                if not weather_keywords or any(keyword in current_weather for keyword in weather_keywords):
+            if temp_min_rule <= self.temp <= temp_max_rule:
+                if not rule["weather_keywords"] or any(keyword in self.weather for keyword in rule["weather_keywords"]):
                     suggestion = rule["advice"]
                     image_file = rule["image"]
                     break
+
         self.label.text = suggestion
         self.image.source = image_file
+
+        # 🌧 雨天時 → 白文字、晴天時 → 黒文字
+        if is_rain_expected:
+            self._set_text_color((1, 1, 1, 1))
+        else:
+            self._set_text_color((0, 0, 0, 1))
+
 
 if __name__ == '__main__':
     WeatherApp().run()
